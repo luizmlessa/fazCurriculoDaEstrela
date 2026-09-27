@@ -39,7 +39,7 @@ with st.sidebar:
     st.header("Configurações")
     modelo = st.selectbox(
         "Modelo Ollama",
-        options=["qwen2.5-coder:7b", "qwen2.5:14b"],
+        options=["qwen2.5-coder:7b", "qwen2.5:14b","qwen3:8b"],
         index=0,
     )
     temperatura = st.slider(
