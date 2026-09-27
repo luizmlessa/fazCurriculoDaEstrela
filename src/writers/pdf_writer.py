@@ -11,11 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class PDFWriter(WriterBase):
-    """Gera PDFs com formatação básica (títulos, bullets e texto).
-
-    Usa a fonte DejaVu Sans (Unicode completo) para evitar problemas
-    com caracteres especiais.
-    """
+    """Gera PDFs com formatação: título (#), seção (##), subtítulo (###), bullet (-) e texto."""
 
     FONTE_REGULAR = "data/fonts/DejaVuSans.ttf"
     FONTE_BOLD = "data/fonts/DejaVuSans-Bold.ttf"
@@ -46,19 +42,33 @@ class PDFWriter(WriterBase):
             pdf.ln(3)
             return
 
-        # Título principal (##)
-        if linha.startswith("##"):
-            texto = re.sub(r"^#+\s*", "", linha)
-            pdf.set_font("DejaVu", "B", 16)
+        # Título principal (#)
+        if linha.startswith("# ") and not linha.startswith("##"):
+            texto = re.sub(r"^#\s*", "", linha)
+            pdf.set_font("DejaVu", "B", 20)
             pdf.ln(2)
-            pdf.multi_cell(largura, 8, texto, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.multi_cell(largura, 10, texto, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
+            pdf.ln(4)
+            pdf.set_font("DejaVu", "", 11)
+            return
+
+        # Seção (##)
+        if linha.startswith("## "):
+            texto = re.sub(r"^#+\s*", "", linha)
+            # Evita título de seção órfão no fim da página
+            if pdf.get_y() > pdf.h - 80:
+                pdf.add_page()
+            pdf.ln(6)
+            pdf.set_font("DejaVu", "B", 14)
+            pdf.multi_cell(largura, 8, texto.upper(), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.ln(2)
             pdf.set_font("DejaVu", "", 11)
             return
 
         # Subtítulo (###)
-        if linha.startswith("###"):
+        if linha.startswith("### "):
             texto = re.sub(r"^#+\s*", "", linha)
-            pdf.set_font("DejaVu", "B", 13)
+            pdf.set_font("DejaVu", "B", 12)
             pdf.ln(1)
             pdf.multi_cell(largura, 7, texto, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_font("DejaVu", "", 11)

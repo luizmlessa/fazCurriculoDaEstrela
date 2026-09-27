@@ -17,20 +17,31 @@ class URLExtractor(ExtratorBase):
     em páginas de vagas (especialmente LinkedIn).
     """
 
-    # Padrões de classes/ids que indicam ruído
     PADROES_RUIDO = [
         r"cookie", r"banner", r"modal", r"popup", r"navbar",
         r"footer", r"header", r"sidebar", r"menu", r"sign-in", r"signin",
         r"login", r"toast", r"tooltip", r"nav-",
     ]
 
-    # Linhas que são ruído puro
     LINHAS_RUIDO = {
         "apply", "sign in", "join now", "join to apply", "email or phone",
         "password", "show", "forgot password?", "new to linkedin?",
         "user agreement", "privacy policy", "cookie policy",
         "skip to main content", "join or sign in to find your next job",
+        "save", "show more", "show less",
     }
+
+    # Marcadores que indicam FIM do conteúdo útil (LinkedIn)
+    MARCADORES_FIM = [
+    "Similar jobs",
+    "People also viewed",
+    "Similar Searches",
+    "Explore top content",
+    "Set alert",
+    "Referrals increase your chances",
+    "Mid-Senior level",
+    "Full-time",
+]
 
     def __init__(self, timeout: int = 30):
         self.timeout = timeout
@@ -56,7 +67,6 @@ class URLExtractor(ExtratorBase):
                     tag.decompose()
 
             # 2. Remove elementos com classes/ids de ruído
-            # Importante: primeiro COLETA os elementos, depois decompõe
             elementos_ruido = []
             for elemento in soup.find_all(True):
                 if not isinstance(elemento, Tag):
@@ -79,7 +89,14 @@ class URLExtractor(ExtratorBase):
             # 4. Filtra linhas ruído
             linhas = [l for l in linhas if l.lower() not in self.LINHAS_RUIDO]
 
-            # 5. Remove duplicatas consecutivas
+            # 5. CORTA a partir de marcadores de fim (LinkedIn)
+            for i, linha in enumerate(linhas):
+                if linha in self.MARCADORES_FIM:
+                    logger.info(f"Cortando a partir do marcador: {linha}")
+                    linhas = linhas[:i]
+                    break
+
+            # 6. Remove duplicatas consecutivas
             resultado = []
             anterior = None
             for linha in linhas:

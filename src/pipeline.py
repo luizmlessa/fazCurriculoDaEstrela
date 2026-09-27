@@ -2,6 +2,7 @@
 import logging
 import os
 
+from src.exceptions import ExtractionError, ParserError, ResumeAIError, WriterError
 from src.extractors.factory import ExtratorFactory
 from src.finders.file_finder import FileFinder
 from src.llm.base import LLMProviderBase
@@ -24,30 +25,36 @@ class ResumePipeline:
 
         logger.info("=== Iniciando Pipeline ===")
 
-        logger.info("--- Localizando Currículo ---")
-        caminho_curriculo = self.finder.encontrar_curriculo()
-        curriculo = ExtratorFactory.criar(caminho_curriculo).extrair(caminho_curriculo)
+        # Etapa 1: currículo
+        try:
+            caminho_curriculo = self.finder.encontrar_curriculo()
+            curriculo = ExtratorFactory.criar(caminho_curriculo).extrair(caminho_curriculo)
+        except Exception as e:
+            raise ExtractionError(f"Falha ao ler o currículo: {e}") from e
 
-        logger.info("--- Lendo Vaga ---")
-        vaga = ExtratorFactory.criar(fonte_vaga).extrair(fonte_vaga)
+        # Etapa 2: vaga
+        try:
+            vaga = ExtratorFactory.criar(fonte_vaga).extrair(fonte_vaga)
+        except Exception as e:
+            raise ExtractionError(f"Falha ao ler a vaga: {e}") from e
 
-        logger.info("--- Construindo Prompt ---")
+        # Etapa 3: prompt + LLM
         prompt = ResumePromptBuilder(curriculo, vaga).construir()
+        resposta = self.llm.gerar_resposta(prompt)  # LLMError já vem do provider
 
-        logger.info("--- Chamando LLM ---")
-        resposta = self.llm.gerar_resposta(prompt)
+        # Etapa 4: parser
+        try:
+            secoes = self.parser.parsear(resposta)
+        except Exception as e:
+            raise ParserError(f"Falha ao interpretar resposta do LLM: {e}") from e
 
-        logger.info("--- Parseando Resposta ---")
-        secoes = self.parser.parsear(resposta)
-
-        logger.info("--- Gerando Análise ATS ---")
-        self.writer.escrever(secoes["analise"], f"{pasta_saida}/analise-ats.pdf")
-
-        logger.info("--- Gerando PDF do Currículo ---")
-        self.writer.escrever(secoes["curriculo"], f"{pasta_saida}/curriculo-adaptado.pdf")
-
-        logger.info("--- Gerando PDF da Carta ---")
-        self.writer.escrever(secoes["carta"], f"{pasta_saida}/carta-apresentacao.pdf")
+        # Etapa 5: escritas
+        try:
+            self.writer.escrever(secoes["analise"], f"{pasta_saida}/analise-ats.pdf")
+            self.writer.escrever(secoes["curriculo"], f"{pasta_saida}/curriculo-adaptado.pdf")
+            self.writer.escrever(secoes["carta"], f"{pasta_saida}/carta-apresentacao.pdf")
+        except Exception as e:
+            raise WriterError(f"Falha ao gerar PDFs: {e}") from e
 
         logger.info("=== Pipeline concluído ===")
         logger.info(f"Outputs em: {pasta_saida}/")
