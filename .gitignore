@@ -4,6 +4,8 @@ __pycache__/
 venv/
 .env
 data/*.pdf
-data/output.md
+data/output/
 .vscode/
 .idea/
+data/fonts/
+data/output/

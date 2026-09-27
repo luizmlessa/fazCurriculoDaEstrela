@@ -1,25 +1,22 @@
 """Ponto de entrada do Faz Currículo da Estrela."""
 import logging
 
-from src.extractors.pdf_extractor import PDFExtractor
-from src.extractors.text_extractor import TextExtractor
+from src.finders.file_finder import FileFinder
 from src.llm.factory import LLMFactory
 from src.pipeline import ResumePipeline
-from src.writers.markdown_writer import MarkdownWriter
+from src.writers.pdf_writer import PDFWriter
 
 logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
     pipeline = ResumePipeline(
-        extrator_curriculo=PDFExtractor(),
-        extrator_vaga=TextExtractor(),
         llm=LLMFactory.criar("ollama"),
-        writer=MarkdownWriter(),
+        writer=PDFWriter(),
+        finder=FileFinder(pasta="data"),
     )
 
     pipeline.executar(
-        caminho_curriculo="data/curriculo.pdf",
-        caminho_vaga="data/vaga.txt",
-        caminho_saida="data/output.md",
+        fonte_vaga="https://www.linkedin.com/jobs/view/4463122444/",
+        pasta_saida="data/output",
     )

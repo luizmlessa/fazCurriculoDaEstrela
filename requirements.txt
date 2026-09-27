@@ -1,2 +1,4 @@
 requests
 pypdf
+beautifulsoup4
+fpdf2

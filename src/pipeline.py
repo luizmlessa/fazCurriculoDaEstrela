@@ -1,64 +1,53 @@
 """Orquestrador do pipeline de adaptação de currículos."""
 import logging
+import os
 
-from extractors.base import ExtratorBase
-from llm.base import LLMProviderBase
-from prompts.resume_prompt import ResumePromptBuilder
-from writers.base import WriterBase
+from src.extractors.factory import ExtratorFactory
+from src.finders.file_finder import FileFinder
+from src.llm.base import LLMProviderBase
+from src.parsers.output_parser import OutputParser
+from src.prompts.resume_prompt import ResumePromptBuilder
+from src.writers.base import WriterBase
 
 logger = logging.getLogger(__name__)
 
 
 class ResumePipeline:
-    """Orquestra as etapas: extração, prompt, LLM e escrita.
-
-    Todas as dependências são injetadas via construtor, permitindo
-    trocar implementações sem alterar o orquestrador.
-    """
-
-    def __init__(
-        self,
-        extrator_curriculo: ExtratorBase,
-        extrator_vaga: ExtratorBase,
-        llm: LLMProviderBase,
-        writer: WriterBase,
-    ):
-        """Recebe todas as dependências por injeção.
-
-        Args:
-            extrator_curriculo: Extrator do arquivo de currículo.
-            extrator_vaga: Extrator do arquivo de vaga.
-            llm: Provedor de IA.
-            writer: Writer de output.
-        """
-        self.extrator_curriculo = extrator_curriculo
-        self.extrator_vaga = extrator_vaga
+    def __init__(self, llm: LLMProviderBase, writer: WriterBase, finder: FileFinder):
         self.llm = llm
         self.writer = writer
+        self.finder = finder
+        self.parser = OutputParser()
 
-    def executar(self, caminho_curriculo: str, caminho_vaga: str, caminho_saida: str) -> None:
-        """Executa o pipeline completo.
+    def executar(self, fonte_vaga: str, pasta_saida: str = "data/output") -> None:
+        os.makedirs(pasta_saida, exist_ok=True)
 
-        Args:
-            caminho_curriculo: Caminho do PDF do currículo.
-            caminho_vaga: Caminho do TXT da vaga.
-            caminho_saida: Caminho onde o output será salvo.
-        """
         logger.info("=== Iniciando Pipeline ===")
 
-        logger.info("--- Lendo Currículo ---")
-        curriculo = self.extrator_curriculo.extrair(caminho_curriculo)
+        logger.info("--- Localizando Currículo ---")
+        caminho_curriculo = self.finder.encontrar_curriculo()
+        curriculo = ExtratorFactory.criar(caminho_curriculo).extrair(caminho_curriculo)
 
         logger.info("--- Lendo Vaga ---")
-        vaga = self.extrator_vaga.extrair(caminho_vaga)
+        vaga = ExtratorFactory.criar(fonte_vaga).extrair(fonte_vaga)
 
         logger.info("--- Construindo Prompt ---")
         prompt = ResumePromptBuilder(curriculo, vaga).construir()
 
         logger.info("--- Chamando LLM ---")
-        resultado = self.llm.gerar_resposta(prompt)
+        resposta = self.llm.gerar_resposta(prompt)
 
-        logger.info("--- Salvando Resultado ---")
-        self.writer.escrever(resultado, caminho_saida)
+        logger.info("--- Parseando Resposta ---")
+        secoes = self.parser.parsear(resposta)
+
+        logger.info("--- Gerando Análise ATS ---")
+        self.writer.escrever(secoes["analise"], f"{pasta_saida}/analise-ats.pdf")
+
+        logger.info("--- Gerando PDF do Currículo ---")
+        self.writer.escrever(secoes["curriculo"], f"{pasta_saida}/curriculo-adaptado.pdf")
+
+        logger.info("--- Gerando PDF da Carta ---")
+        self.writer.escrever(secoes["carta"], f"{pasta_saida}/carta-apresentacao.pdf")
 
         logger.info("=== Pipeline concluído ===")
+        logger.info(f"Outputs em: {pasta_saida}/")
