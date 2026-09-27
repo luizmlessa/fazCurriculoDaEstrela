@@ -1,3 +1,4 @@
+
 # Faz Currículo da Estrela
 
 Adaptador de currículos para ATS com IA local (Ollama).
