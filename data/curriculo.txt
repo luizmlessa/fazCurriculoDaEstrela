@@ -1,0 +1,58 @@
+Luiz Miguel Lessa Ricci
+Desenvolvedor Backend | Java, Spring Boot, REST APIs, Bancos de Dados
+
+Contato
+Rio de Janeiro, RJ
+(21) 98366-9468
+luizlessaricci@gmail.com
+LinkedIn: linkedin.com/in/luizmlessa
+GitHub: github.com/luizmlessa
+
+Resumo Profissional
+Desenvolvedor backend com mais de 5 anos de experiência em Java (8/11+), Spring Boot e APIs RESTful. Experiência com microsserviços, mensageria (Kafka), bancos relacionais (PostgreSQL, MySQL, SQL Server, Oracle) e NoSQL (MongoDB, Redis), containers (Docker, Kubernetes), CI/CD (Jenkins, Git) e metodologias ágeis (Scrum/Kanban). Forte atuação em sustentação, análise de métricas e colaboração em equipe.
+
+Experiência Profissional
+
+Global Hitss - Desenvolvedor Java (Set/2023 - Presente)
+- Desenvolvimento e sustentação de chatbots inteligentes para a Claro com Java 11+ e Spring Boot.
+- Integração de sistemas internos e externos em ambientes de alta disponibilidade.
+- Uso de Redis para cache e otimização de consultas.
+- Refatoração de código, análise de métricas e correção de problemas em produção.
+- Monitoramento de logs e métricas via AWS CloudWatch.
+Stack: Java 11+, Spring Boot, SQL Server, Redis, Jenkins, CloudWatch.
+
+TQI - Engenheiro de Software (Mai/2022 - Mar/2023)
+- Desenvolvimento de APIs RESTful em Java e Kotlin no ecossistema PagSeguro.
+- Implementação e manutenção de microsserviços com Spring Boot, Docker e Kafka.
+- Uso de Kubernetes para orquestração de containers em ambiente de desenvolvimento.
+- Utilização de Redis como camada de cache em serviços de alta consulta.
+- Containerização e automação de CI/CD com Docker e Jenkins.
+Stack: Java, Kotlin, Spring Boot, Kafka, Docker, Kubernetes, Redis, Jenkins, Git.
+
+HeadMind Partners - Desenvolvedor Web/Java (Fev/2022 - Mai/2022)
+- Desenvolvimento e melhoria de aplicações corporativas web em Java 8 e Spring Boot.
+- Implementação de novos fluxos e correção de bugs críticos em sistemas legados (Vivo).
+- Consultas SQL em MySQL e Oracle para geração de relatórios.
+- Uso de JSF, Spring Data JPA e Spring Security.
+Stack: Java 8, Spring Boot, JSF, JPA, Spring Security, MySQL, Oracle, Azure, Maven, Git.
+
+Formação Acadêmica
+Estácio - CST em Análise de Sistemas de Computação (2018 - 2021)
+
+Certificações
+- Introdução ao Git e GitHub
+- Spring Boot - Fundamentos
+- Scrum Fundamentals Certified
+- Apache Kafka: Produtores, Consumidores e Streams
+- Spark: Introdução à Ferramenta
+
+Competências Técnicas
+- Java 8/11+, Kotlin, SQL, Python
+- Spring Boot, Spring Data, Spring Security, JSF
+- PostgreSQL, MySQL, SQL Server, Oracle, MongoDB, Redis
+- Kafka, RabbitMQ (básico)
+- Docker, Kubernetes
+- Git, Jenkins, GitHub Actions, CI/CD
+- AWS (CloudWatch), Azure
+- Scrum, Kanban
+- Modelagem de dados, documentação técnica, UML (básico)
